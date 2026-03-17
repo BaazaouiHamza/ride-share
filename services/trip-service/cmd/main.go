@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	h "ride-sharing/services/trip-service/internal/infrastructure/http"
 	"ride-sharing/services/trip-service/internal/infrastructure/repository"
 	"ride-sharing/services/trip-service/internal/service"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -21,8 +26,27 @@ func main() {
 		Addr:    ":8083",
 		Handler: mux,
 	}
+	serverErrors := make(chan error, 1)
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Printf("HTTP server error: %v", err)
+	go func() {
+		log.Printf("Server listening on %s", server.Addr)
+		serverErrors <- server.ListenAndServe()
+	}()
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	case err := <-serverErrors:
+		log.Printf("Error starting the server: %v", err)
+	case signal := <-shutdown:
+		log.Printf("Server is shuting down due to %v signal", signal)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("Could not stop the server gracefully: %v", err)
+			server.Close()
+		}
 	}
+
 }
