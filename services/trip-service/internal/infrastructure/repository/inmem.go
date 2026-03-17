@@ -10,14 +10,14 @@ type inmemRepository struct {
 	rideFares map[string]*domain.RideFareModel
 }
 
-func NewInMemRepository() *inmemRepository {
+func NewInmemRepository() *inmemRepository {
 	return &inmemRepository{
 		trips:     make(map[string]*domain.TripModel),
 		rideFares: make(map[string]*domain.RideFareModel),
 	}
 }
 
-func (ir *inmemRepository) CreateTrip(ctx context.Context, trip *domain.TripModel) (*domain.TripModel, error) {
-	ir.trips[trip.ID.Hex()] = trip
+func (r *inmemRepository) CreateTrip(ctx context.Context, trip *domain.TripModel) (*domain.TripModel, error) {
+	r.trips[trip.ID.Hex()] = trip
 	return trip, nil
 }
