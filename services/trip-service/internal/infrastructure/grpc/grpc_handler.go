@@ -70,7 +70,7 @@ func (h *gRPCHandler) PreviewTrip(ctx context.Context, req *pb.PreviewTripReques
 	// 1. Estimate the ride fares prices based on the route (ex: distance)
 	estimatedFares := h.service.EstimatePackagesPriceWithRoute(route)
 	// 2. Store the ride fares for the create trip (next lesson) to fetch and validate.
-	fares, err := h.service.GenerateTripFares(ctx, estimatedFares, userID)
+	fares, err := h.service.GenerateTripFares(ctx, estimatedFares, userID, route)
 	if err != nil {
 		log.Println(err)
 		return nil, status.Errorf(codes.Internal, "failed to generate trip fares: %v", err)
