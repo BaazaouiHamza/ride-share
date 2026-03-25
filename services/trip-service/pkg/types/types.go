@@ -14,6 +14,10 @@ type (
 			} `json:"geometry"`
 		} `json:"routes"`
 	}
+	PricingConfig struct {
+		PricePerUnitOfDistance float64
+		PricingPerMinute       float64
+	}
 )
 
 func (o *OsrmApiResponse) ToProto() *pb.Route {
@@ -37,5 +41,12 @@ func (o *OsrmApiResponse) ToProto() *pb.Route {
 		},
 		Distance: route.Distance,
 		Duration: route.Duration,
+	}
+}
+
+func DefaultPricingConfig() *PricingConfig {
+	return &PricingConfig{
+		PricePerUnitOfDistance: 1.5,
+		PricingPerMinute:       0.25,
 	}
 }
