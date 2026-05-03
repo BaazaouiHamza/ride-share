@@ -53,7 +53,7 @@ func main() {
 	consumer := NewTripConsumer(rabbitmq)
 	go func() {
 		if err := consumer.Listen(); err != nil {
-			log.Fatal("Failed to listen to the message: %v", err)
+			log.Fatalf("Failed to listen to the message: %v", err)
 		}
 	}()
 
