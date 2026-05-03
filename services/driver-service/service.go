@@ -66,3 +66,16 @@ func (s *Service) UnregisterDriver(driverId string) {
 		}
 	}
 }
+
+func (s *Service) FindAvailableDrivers(packageSlug string) []string {
+	drivers := make([]string, 0)
+	for _, driver := range s.drivers {
+		if driver.Driver.PackageSlug == packageSlug {
+			drivers = append(drivers, driver.Driver.Id)
+		}
+	}
+	if len(drivers) == 0 {
+		return []string{}
+	}
+	return drivers
+}
