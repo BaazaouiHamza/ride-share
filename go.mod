@@ -6,6 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/stripe/stripe-go/v81 v81.4.0
 	go.mongodb.org/mongo-driver v1.13.1
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11

@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"ride-sharing/services/payment-service/internal/infrastructure/stripe"
+	"ride-sharing/services/payment-service/internal/service"
 	"ride-sharing/services/payment-service/pkg/types"
 	"ride-sharing/shared/env"
 	"ride-sharing/shared/messaging"
@@ -36,6 +38,13 @@ func main() {
 		SuccessURL:      env.GetString("STRIPE_SUCCESS_URL", appURL+"?payment=success"),
 		CancelURL:       env.GetString("STRIPE_CANCEL_URL", appURL+"?payment=cancel"),
 	}
+
+	// Stripe processor
+	paymentProcessor := stripe.NewStripeClient(stripeCfg)
+
+	svc := service.NewPaymentService(paymentProcessor)
+
+	log.Println(svc)
 
 	if stripeCfg.StripeSecretKey == "" {
 		log.Fatalf("STRIPE_SECRET_KEY is not set")
