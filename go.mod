@@ -8,8 +8,19 @@ require (
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/stripe/stripe-go/v81 v81.4.0
 	go.mongodb.org/mongo-driver v1.13.1
+	go.opentelemetry.io/otel/sdk v1.39.0
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11
+)
+
+require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
+	go.opentelemetry.io/otel v1.39.0 // indirect
+	go.opentelemetry.io/otel/metric v1.39.0 // indirect
+	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 )
 
 require (
