@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	TripExchange = "trip"
+	TripExchange       = "trip"
+	DeadLetterExchange = "dlx"
 )
 
 type RabbitMQ struct {
@@ -144,7 +145,52 @@ func (r *RabbitMQ) publish(ctx context.Context, exchange, routingKey string, msg
 	)
 }
 
+func (r *RabbitMQ) setupDeadLetterExchange() error {
+	if err := r.Channel.ExchangeDeclare(
+		DeadLetterExchange, // name
+		"topic",            // type
+		true,               // durability
+		false,              // auto-deleted
+		false,              // internal
+		false,              // no-wait
+		nil,                // arguments
+	); err != nil {
+		return fmt.Errorf("failed to declare exchange: %s: %v", TripExchange, err)
+	}
+
+	// Declare the dead letter queue
+	q, err := r.Channel.QueueDeclare(
+		DeadLetterQueue, // name
+		true,            // durability
+		false,           // delete when unused
+		false,           // exclusive
+		false,           // no-wait
+		nil,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Bind the queue to the exchange with a wildcard routing key
+	if err := r.Channel.QueueBind(
+		q.Name,             // queue name
+		"#",                // routing key
+		DeadLetterExchange, // exchange
+		false,
+		nil,
+	); err != nil {
+		return fmt.Errorf("failed to bind dead letter queue: %v", err)
+	}
+
+	return nil
+}
+
 func (r *RabbitMQ) setupExchangeAndQueues() error {
+	// First setup the DLQ exchange and queue
+	if err := r.setupDeadLetterExchange(); err != nil {
+		return err
+	}
+
 	if err := r.Channel.ExchangeDeclare(
 		TripExchange, // name
 		"topic",      // type
@@ -224,13 +270,18 @@ func (r *RabbitMQ) setupExchangeAndQueues() error {
 }
 
 func (r *RabbitMQ) declareAndBindQueue(queueName string, messageTypes []string, exchange string) error {
+	// Add dead letter configuration
+	args := amqp.Table{
+		"x-dead-letter-exchange": DeadLetterExchange,
+	}
+
 	q, err := r.Channel.QueueDeclare(
 		queueName, // name
 		true,      // durability
 		false,     // delete when unused
 		false,     // exclusive
 		false,     // no-wait
-		nil,
+		args,      // arguments with DLX config
 	)
 	if err != nil {
 		log.Fatal(err)
